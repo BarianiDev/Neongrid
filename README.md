@@ -1,7 +1,7 @@
 # What is NeonGrid?
-
-e uma ferramente de seguranca voltada a escanear com analise de riscos, estou trabalhando nela para evoluir para uma plataforma SIEM e tambem com foco em pentest
-diriamos purple team.
+NeonGrid is a security tool focused on port scanning with risk analysis,
+currently evolving into a full SIEM (Security Information and Event Management)
+platform with penetration testing capabilities — a purple team approach.
 
 # Freatures
 - 
