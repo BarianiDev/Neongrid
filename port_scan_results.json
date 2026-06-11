@@ -1,0 +1,20 @@
+{
+    "target_ip": "google.com",
+    "open_ports": [
+        {
+            "port": 53,
+            "banner": null,
+            "service": "DNS"
+        },
+        {
+            "port": 80,
+            "banner": null,
+            "service": "HTTP"
+        },
+        {
+            "port": 443,
+            "banner": null,
+            "service": "HTTPS"
+        }
+    ]
+}
