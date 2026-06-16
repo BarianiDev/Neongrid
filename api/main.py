@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 from Neongrid.scanner.port_scanner import run_scan
+from Neongrid.engine.rules import run_rules
 
 app = FastAPI()
 
@@ -19,3 +20,8 @@ def scan(target: str, start_port: int, end_port: int):
     )
 
     return results
+
+@app.get("/alerts")
+def alerts():
+    return {"alerts": run_rules()}
+

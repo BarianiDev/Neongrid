@@ -7,6 +7,7 @@ from Neongrid.analyzer.risk_engine import analyze_port
 from queue import Queue
 from Neongrid.normalizer.event_schema import build_event
 from Neongrid.storage.db import init_db, save_event
+from Neongrid.enrichment.cve_lookup import enrich_with_cves
 
 
 logging.basicConfig(
@@ -62,14 +63,17 @@ def scan_port(ip, port, result_queue):
                         "port": port, 
                         "banner": banner
                         }))
-                    
+
+                cves = enrich_with_cves(service, banner)
+
                 event = build_event("port_scan_result", {
                     "target_ip": ip,
                     "port": port,
                     "service": service,
                     "banner": banner,
                     "risk": analysis["risk"],
-                    "description": analysis["description"]
+                    "description": analysis["description"],
+                    "cves": cves
                 })
 
                 save_event(event)
@@ -78,7 +82,8 @@ def scan_port(ip, port, result_queue):
                     "service": service,
                     "banner": banner,
                     "risk": analysis["risk"],
-                    "description": analysis["description"]
+                    "description": analysis["description"],
+                    "cves": cves
                     })
 
             sock.close()
