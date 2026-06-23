@@ -1,93 +1,90 @@
-# What is NeonGrid?
-NeonGrid is a security tool focused on port scanning with risk analysis,
-currently evolving into a full SIEM (Security Information and Event Management)
-platform with penetration testing capabilities — a purple team approach.
+# NeonGrid
 
-It covers the full SIEM cycle: collect → normalize → store → detect → visualize.
+![CI](https://github.com/BarianiDev/Neongrid/actions/workflows/ci.yml/badge.svg)
+
+A modular purple-team security platform built in Python. It covers the full SIEM
+cycle: collect, normalize, store, detect, notify and visualize.
 
 ## Features
+
 - TCP port scanning with multithreading
 - Risk profiling per service (CRITICAL / HIGH / MEDIUM / LOW)
-- Banner grabbing for service fingerprinting
-- CVE enrichment via the NVD (NIST) API
-- Attack surface analysis with recommendations
+- Banner grabbing and CVE enrichment via the NVD (NIST) API
 - Syslog log ingestion over UDP
-- Detection rules engine with event correlation (e.g. SSH brute force)
-- Alert persistence with deduplication
-- Structured JSON logging
-- Event persistence with SQLite
-- REST API via FastAPI
-- Streamlit dashboard for visualization
+- Detection engine with event correlation, mapped to MITRE ATT&CK
+- Real-time alert notifications (Discord / Slack webhook)
+- Continuous, autonomous detection
+- Live dashboard (Streamlit) with auto-refresh
+- Fully containerized with Docker Compose
+- Automated tests running in CI (GitHub Actions)
 
-# Project Structure 
+## Detection Rules
+
+| Rule                      | Severity | MITRE ATT&CK              |
+|---------------------------|----------|---------------------------|
+| SSH Brute Force           | HIGH     | T1110 Brute Force         |
+| Brute Force Succeeded     | CRITICAL | T1110 Brute Force         |
+| Port Scan Detected        | MEDIUM   | T1046 Network Service Discovery |
+| Cleartext Service Exposed | HIGH     | T1040 Network Sniffing    |
+| Critical Port Exposed     | CRITICAL | T1133 External Remote Services |
+| High Attack Surface       | HIGH     | exposure (not a technique)|
+
+## Project Structure
+
 NeonGrid/
 
-├── api/                  # FastAPI REST interface
+├── .github/workflows/   # CI pipeline (GitHub Actions)
 
-├── dashboard/            # Streamlit dashboard
+├── api/                 # FastAPI REST interface
+
+├── dashboard/           # Streamlit dashboard
 
 ├── Neongrid/
 
-│   ├── scanner/          # Port scanning engine
+│   ├── scanner/         # Port scanning engine
 
-│   ├── analyzer/         # Risk profiling per port/service
+│   ├── analyzer/        # Risk profiling
 
-│   ├── enrichment/       # CVE lookup via NVD API
+│   ├── enrichment/      # CVE lookup (NVD API)
 
-│   ├── collector/        # Syslog receiver (log ingestion)
+│   ├── collector/       # Syslog receiver
 
-│   ├── engine/           # Detection rules engine
+│   ├── engine/          # Detection rules + continuous detector
 
-│   ├── normalizer/       # Event schema standardization
+│   ├── notifier/        # Webhook notifications
 
-│   └── storage/          # SQLite persistence
+│   ├── normalizer/      # Event schema standardization
 
-├── tests/                # Automated tests
+│   └── storage/         # SQLite persistence
 
-└── results/              # Generated database
+├── tests/               # Automated tests
 
+└── results/             # Generated database
 
 ## How to Run
-# Install dependencies
-Install dependencies:
+
+Configure a webhook (optional, for notifications) in a `.env` file:
+NEONGRID_WEBHOOK_URL=https://discord.com/api/webhooks/...
+
+Start the whole platform:
 
 ```bash
-pip install -r requirements.txt
+docker compose up --build
 ```
 
-Start the API:
-
-```bash
-uvicorn api.main:app --reload
-```
-
-Start the syslog receiver (separate terminal):
-
-```bash
-python -m Neongrid.collector.syslog_receiver
-```
-
-Open the dashboard (separate terminal, from project root):
-
-```bash
-streamlit run dashboard/app.py
-```
-
-## API Usage
-GET /scan?target=scanme.nmap.org&start_port=1&end_port=100
-
-GET /alerts
+- API:       http://localhost:8000/docs
+- Dashboard: http://localhost:8501
 
 ## Running Tests
+
+```bash
 pytest tests/ -v
+```
 
 ## Roadmap
 
-- [x] CVE lookup via NVD API
-- [x] Syslog receiver
-- [x] Detection rules engine
-- [x] Dashboard
-- [ ] Continuous detection (scheduled rule evaluation)
-- [ ] More detection rules
+- [x] CVE enrichment, syslog ingestion, detection engine, dashboard
+- [x] Notifications, continuous detection, Docker, CI
+- [ ] PostgreSQL backend
+- [ ] Threat intelligence enrichment
 - [ ] React frontend
-- [ ] Docker deployment
