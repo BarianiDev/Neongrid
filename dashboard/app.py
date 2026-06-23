@@ -5,9 +5,12 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import streamlit as st
 import pandas as pd
 from Neongrid.storage.db import get_events
+from streamlit_autorefresh import st_autorefresh
 
 st.set_page_config(page_title="NeonGrid SIEM", layout="wide")
 st.title("NeonGrid - Security Dashboard")
+st_autorefresh(interval=10000, key="data_refresh")
+
 
 if st.button("Event and alerts analysis"):
     from Neongrid.engine.rules import run_and_store
