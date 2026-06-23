@@ -28,8 +28,8 @@ col3.metric("Alerts", len(alerts))
 st.subheader("Alerts")
 if alerts:
     df_alerts = pd.DataFrame(alerts)
-    cols = [c for c in ["timestamp", "rule", "severity", "detail"] if c in df_alerts.columns]
-    st.dataframe(df_alerts[cols], use_container_width=True)
+    cols = [c for c in ["timestamp", "rule", "severity", "mitre_id", "mitre_technique", "detail"] if c in df_alerts.columns]
+    st.dataframe(df_alerts[cols], width="stretch")
 
 else:
     st.info("None alerts")
@@ -38,7 +38,7 @@ st.subheader("Open ports")
 if scan_results:
     df_ports = pd.DataFrame(scan_results)
     cols = [ c for c in ["timestamp", "target_ip", "port", "service", "risk", "description"] if c in df_ports.columns]
-    st.dataframe(df_ports[cols], use_container_width=True)
+    st.dataframe(df_ports[cols], width="stretch")
 
     st.subheader("Risk Distribuction")
     st.bar_chart(df_ports["risk"].value_counts())

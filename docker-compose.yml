@@ -1,0 +1,34 @@
+services:
+  api:
+    build: .
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./results:/app/results # shared database, persisteed on the host
+    command: uvicorn api.main:app --host 0.0.0.0 --port 8000
+
+  receiver:
+    build: .
+    ports:
+      - "5140:5140/udp"  # syslog uses UDP
+    volumes:
+      - ./results:/app/results
+    command: python -m Neongrid.collector.syslog_receiver
+
+  dashboard:
+    build: .
+    ports:
+      - "8501:8501"
+    volumes:
+      - ./results:/app/results
+    environment:
+      - NEONGRID_WEBHOOK_URL=${NEONGRID_WEBHOOK_URL}
+    command: streamlit run dashboard/app.py --server.address 0.0.0.0 --server.port 8501
+
+  detector:
+    build: .
+    volumes:
+      - ./results:/app/results
+    environment:
+      - NEONGRID_WEBHOOK_URL=${NEONGRID_WEBHOOK_URL}
+    command: python -m Neongrid.engine.detector
