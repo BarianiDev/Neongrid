@@ -3,6 +3,7 @@ from collections import Counter
 from Neongrid.storage.db import get_events, save_event
 from Neongrid.normalizer.event_schema import build_event
 from Neongrid.notifier.webhook import send_alert
+from Neongrid.enrichment.threat_intel import load_knowbn_bad_ips
 
 
 
@@ -55,6 +56,7 @@ def run_rules():
     alerts.extend(rule_brute_force_success())
     alerts.extend(rule_cleartext_service())
     alerts.extend(rule_high_attack_surface())
+    alerts.extend(rule_known_malicious_ip())
     return alerts
 
 
@@ -173,4 +175,27 @@ def rule_high_attack_surface(threshold=3):
                 "detail": f"{target} expose {len(ports)} services high risk rate"
             })
 
+    return alerts
+
+
+def rule_known_malicious_ip():
+    """Flags activity from IPs present in the threat intelligence feed."""
+    events = get_events(event_type="syslog_message")
+    known_bad = load_knowbn_bad_ips()
+    alerts = []
+    seen = set()
+
+    for e in events:
+        msg = e.get("message", "")
+        ip_match = re.search(r"from (\d+\.\d+\.\d+\.\d+)", msg)
+        ip = ip_match.group(1) if ip_match else e.get("source_ip")
+
+        if ip in known_bad and ip not in seen:
+            seen.add(ip)
+            alerts.append({
+                "rule": "Known Malicious IP",
+                "severity": "CRITICAL",
+                "detail": f"Suspicious activity from known ips {ip}"
+            })
+    
     return alerts
